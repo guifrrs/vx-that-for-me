@@ -10,7 +10,15 @@ import (
 
 func (app *Application) MessageHandler(msg *tbot.Message) {
 	tweetLink := "https://fixvx.com/" + msg.Text[20:]
-	originalSenderMsg := fmt.Sprintf("Hey @%s, I fixed that for you :3", msg.Chat.Username)
+
+	var username string
+	if msg.Chat.Username != "" {
+		username = msg.From.Username
+	} else {
+		username = msg.From.FirstName
+	}
+
+	originalSenderMsg := fmt.Sprintf("Hey @%s, I fixed that for you :3", username)
 
 	log.Println("Sender: ", msg.Chat.Username)
 
