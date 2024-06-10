@@ -3,24 +3,24 @@ package main
 import (
 	"fmt"
 
-	"log"
-
 	"github.com/yanzay/tbot/v2"
 )
 
-func (app *Application) MessageHandler(msg *tbot.Message) {
-	tweetLink := "https://fixvx.com/" + msg.Text[20:]
-
-	var username string
+func getUsername(msg *tbot.Message) string {
 	if msg.Chat.Username != "" {
-		username = msg.From.Username
-	} else {
-		username = msg.From.FirstName
+		return msg.From.Username
 	}
 
-	originalSenderMsg := fmt.Sprintf("Hey @%s, I fixed that for you :3", username)
+	if msg.From.LastName != "" {
+		return msg.From.FirstName + " " + msg.From.LastName
+	}
 
-	log.Println("Sender: ", msg.Chat.Username)
+	return msg.From.FirstName
+}
+
+func (app *Application) MessageHandler(msg *tbot.Message) {
+	tweetLink := "https://fixvx.com/" + msg.Text[20:]
+	originalSenderMsg := fmt.Sprintf("Hey @%s, I fixed that for you :3", getUsername(msg))
 
 	app.client.SendMessage(msg.Chat.ID, originalSenderMsg)
 	_, err := app.client.SendMessage(msg.Chat.ID, tweetLink)
