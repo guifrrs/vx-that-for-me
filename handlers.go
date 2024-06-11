@@ -7,12 +7,8 @@ import (
 )
 
 func getUsername(msg *tbot.Message) string {
-	if msg.Chat.Username != "" {
+	if msg.From.Username != "" {
 		return msg.From.Username
-	}
-
-	if msg.From.LastName != "" {
-		return msg.From.FirstName + " " + msg.From.LastName
 	}
 
 	return msg.From.FirstName
