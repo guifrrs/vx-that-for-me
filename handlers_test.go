@@ -17,14 +17,14 @@ func TestReplaceLink(t *testing.T) {
 			msg: &tbot.Message{
 				Text: "https://x.com/whotfisjovana/status/1894867871412691219",
 			},
-			expected: "https://fixvx.com/whotfisjovana/status/1894867871412691219",
+			expected: "https://fixupx.com/whotfisjovana/status/1894867871412691219",
 		},
 		{
 			name: "Broken link",
 			msg: &tbot.Message{
 				Text: "https://x.com/theo/status/1895247223577026832",
 			},
-			expected: "https://fixvx.com/theo/status/1895247223577026832",
+			expected: "https://fixupx.com/theo/status/1895247223577026832",
 		},
 	}
 
