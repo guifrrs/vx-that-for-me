@@ -19,7 +19,7 @@ func replaceLink(msg *tbot.Message) string {
 	domainRegex := regexp.MustCompile(`https://(.*?)/`)
 	domain := domainRegex.FindString(msg.Text)
 	if domain != "" {
-		return "https://fixvx.com/" + msg.Text[len(domain):]
+		return "https://fixupx.com/" + msg.Text[len(domain):]
 	}
 
 	return msg.Text
