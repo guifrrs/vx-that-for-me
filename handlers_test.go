@@ -42,6 +42,11 @@ func TestGetUsername(t *testing.T) {
 			},
 			expected: "user_123-test",
 		},
+		{
+			name:     "nil From field",
+			msg:      &tbot.Message{},
+			expected: "unknown",
+		},
 	}
 
 	for _, tc := range testCases {

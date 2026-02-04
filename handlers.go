@@ -21,10 +21,12 @@ func sanitizeForLog(input string) string {
 }
 
 func getUsername(msg *tbot.Message) string {
+	if msg.From == nil {
+		return "unknown"
+	}
 	if msg.From.Username != "" {
 		return msg.From.Username
 	}
-
 	return msg.From.FirstName
 }
 
@@ -33,12 +35,9 @@ func replaceLink(msg *tbot.Message) string {
 		return msg.Text
 	}
 
-	// Replace the entire matched URL with the fixed version
 	result := statusRegex.ReplaceAllStringFunc(msg.Text, func(match string) string {
-		// Extract just the domain part after protocol
 		domainMatch := domainRegex.FindStringSubmatch(match)
 		if len(domainMatch) > 1 {
-			// domainMatch[1] is just the domain name
 			return fmt.Sprintf("https://%s%s", fixupxDomain, match[len(domainMatch[0])-1:])
 		}
 		return match
@@ -48,11 +47,12 @@ func replaceLink(msg *tbot.Message) string {
 }
 
 func MessageHandler(msg *tbot.Message) {
-	safeUsername := sanitizeForLog(getUsername(msg))
+	username := getUsername(msg)
+	safeUsername := sanitizeForLog(username)
 	safeText := sanitizeForLog(msg.Text)
 	log.Printf("Received message from @%s: %s", safeUsername, safeText)
 
-	originalSenderMsg := fmt.Sprintf("Hey @%s, I fixed that for you :3", getUsername(msg))
+	originalSenderMsg := fmt.Sprintf("Hey @%s, I fixed that for you :3", username)
 	_, err := app.client.SendMessage(msg.Chat.ID, originalSenderMsg)
 	if err != nil {
 		log.Printf("Error sending notification message: %v", err)
