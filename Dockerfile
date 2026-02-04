@@ -8,6 +8,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 FROM alpine:3.20
+RUN apk add --no-cache procps curl
 RUN adduser -D -u 1000 appuser
 WORKDIR /app
 COPY --from=builder /app/main .
