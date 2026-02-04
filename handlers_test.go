@@ -26,6 +26,20 @@ func TestReplaceLink(t *testing.T) {
 			},
 			expected: "https://fixupx.com/theo/status/1895247223577026832",
 		},
+		{
+			name: "Media page should not be converted",
+			msg: &tbot.Message{
+				Text: "https://x.com/DataFutebol/media",
+			},
+			expected: "https://x.com/DataFutebol/media",
+		},
+		{
+			name: "Profile page should not be converted",
+			msg: &tbot.Message{
+				Text: "https://x.com/DataFutebol",
+			},
+			expected: "https://x.com/DataFutebol",
+		},
 	}
 
 	for _, tc := range testCases {

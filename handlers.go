@@ -16,6 +16,11 @@ func getUsername(msg *tbot.Message) string {
 }
 
 func replaceLink(msg *tbot.Message) string {
+	statusRegex := regexp.MustCompile(`https?://(?:www\.)?(?:twitter|x)\.com/[^/]+/status/\d+`)
+	if !statusRegex.MatchString(msg.Text) {
+		return msg.Text
+	}
+
 	domainRegex := regexp.MustCompile(`https://(.*?)/`)
 	domain := domainRegex.FindString(msg.Text)
 	if domain != "" {
