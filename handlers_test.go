@@ -1,6 +1,7 @@
 package main
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/yanzay/tbot/v2"
@@ -150,6 +151,13 @@ func TestReplaceLink(t *testing.T) {
 			expected: "Check this https://kkinstagram.com/reel/ABC123/?igsh=example",
 		},
 		{
+			name: "Instagram link followed by punctuation",
+			msg: &tbot.Message{
+				Text: "See https://instagram.com/p/ABC123.",
+			},
+			expected: "See https://kkinstagram.com/p/ABC123.",
+		},
+		{
 			name: "Instagram TV link over HTTP",
 			msg: &tbot.Message{
 				Text: "http://instagram.com/tv/ABC123",
@@ -177,6 +185,27 @@ func TestReplaceLink(t *testing.T) {
 			actual := replaceLink(tc.msg)
 			if actual != tc.expected {
 				t.Errorf("Expected %s, got %s", tc.expected, actual)
+			}
+		})
+	}
+}
+
+func TestSupportedLinkPattern(t *testing.T) {
+	pattern := regexp.MustCompile(supportedLinkPattern())
+	testCases := []struct {
+		url       string
+		supported bool
+	}{
+		{url: "https://x.com/user/status/123", supported: true},
+		{url: "https://instagram.com/p/ABC123", supported: true},
+		{url: "https://instagram.com/reel/ABC123", supported: true},
+		{url: "https://instagram.com/example", supported: false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.url, func(t *testing.T) {
+			if actual := pattern.MatchString(tc.url); actual != tc.supported {
+				t.Errorf("Expected supported=%t, got %t", tc.supported, actual)
 			}
 		})
 	}

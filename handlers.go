@@ -4,24 +4,44 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 
 	"github.com/yanzay/tbot/v2"
 )
 
 const (
-	fixupxDomain         = "fixupx.com"
-	kkinstagramDomain    = "kkinstagram.com"
-	twitterLinkPattern   = `https?://(?:www\.)?(?:twitter|x)\.com/[^/]+/status/\d+`
-	instagramLinkPattern = `https?://(?:www\.)?instagram\.com/(?:p|reel|reels|tv)/[^/\s?#]+`
-	supportedLinkPattern = `(?:` + twitterLinkPattern + `|` + instagramLinkPattern + `)`
+	twitterLinkPattern   = `https?://(?:www\.)?(?:twitter|x)\.com(/[^/]+/status/\d+)`
+	instagramLinkPattern = `https?://(?:www\.)?instagram\.com(/(?:p|reel|tv)/[A-Za-z0-9_-]+)`
 )
 
-var (
-	twitterLinkRegex   = regexp.MustCompile(twitterLinkPattern)
-	instagramLinkRegex = regexp.MustCompile(instagramLinkPattern)
-	domainRegex        = regexp.MustCompile(`https?://(.*?)/`)
-	usernameRegex      = regexp.MustCompile(`[^a-zA-Z0-9_\-@. ]`)
-)
+type linkRule struct {
+	pattern     string
+	regex       *regexp.Regexp
+	replacement string
+}
+
+func newLinkRule(pattern, domain string) linkRule {
+	return linkRule{
+		pattern:     pattern,
+		regex:       regexp.MustCompile(pattern),
+		replacement: "https://" + domain + "$1",
+	}
+}
+
+var linkRules = []linkRule{
+	newLinkRule(twitterLinkPattern, "fixupx.com"),
+	newLinkRule(instagramLinkPattern, "kkinstagram.com"),
+}
+
+var usernameRegex = regexp.MustCompile(`[^a-zA-Z0-9_\-@. ]`)
+
+func supportedLinkPattern() string {
+	patterns := make([]string, 0, len(linkRules))
+	for _, rule := range linkRules {
+		patterns = append(patterns, rule.pattern)
+	}
+	return `(?:` + strings.Join(patterns, `|`) + `)`
+}
 
 func sanitizeForLog(input string) string {
 	return usernameRegex.ReplaceAllString(input, "")
@@ -38,18 +58,11 @@ func getUsername(msg *tbot.Message) string {
 }
 
 func replaceLink(msg *tbot.Message) string {
-	replaceDomain := func(input string, linkRegex *regexp.Regexp, domain string) string {
-		return linkRegex.ReplaceAllStringFunc(input, func(match string) string {
-			domainMatch := domainRegex.FindStringSubmatch(match)
-			if len(domainMatch) > 1 {
-				return fmt.Sprintf("https://%s%s", domain, match[len(domainMatch[0])-1:])
-			}
-			return match
-		})
+	result := msg.Text
+	for _, rule := range linkRules {
+		result = rule.regex.ReplaceAllString(result, rule.replacement)
 	}
-
-	result := replaceDomain(msg.Text, twitterLinkRegex, fixupxDomain)
-	return replaceDomain(result, instagramLinkRegex, kkinstagramDomain)
+	return result
 }
 
 func MessageHandler(msg *tbot.Message) {
