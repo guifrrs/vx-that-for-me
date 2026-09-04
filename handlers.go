@@ -11,7 +11,7 @@ import (
 
 const (
 	twitterLinkPattern   = `https?://(?:www\.)?(?:twitter|x)\.com(/[^/]+/status/\d+)`
-	instagramLinkPattern = `https?://(?:www\.)?instagram\.com(/(?:p|reel|tv)/[A-Za-z0-9_-]+)`
+	instagramLinkPattern = `https?://(?:www\.)?instagram\.com(/(?:p|reels?|tv)/[A-Za-z0-9_-]+)`
 )
 
 type linkRule struct {

@@ -151,6 +151,13 @@ func TestReplaceLink(t *testing.T) {
 			expected: "Check this https://kkinstagram.com/reel/ABC123/?igsh=example",
 		},
 		{
+			name: "Instagram reels link",
+			msg: &tbot.Message{
+				Text: "https://www.instagram.com/reels/DczNHL2JgNl/",
+			},
+			expected: "https://kkinstagram.com/reels/DczNHL2JgNl/",
+		},
+		{
 			name: "Instagram link followed by punctuation",
 			msg: &tbot.Message{
 				Text: "See https://instagram.com/p/ABC123.",
@@ -199,6 +206,7 @@ func TestSupportedLinkPattern(t *testing.T) {
 		{url: "https://x.com/user/status/123", supported: true},
 		{url: "https://instagram.com/p/ABC123", supported: true},
 		{url: "https://instagram.com/reel/ABC123", supported: true},
+		{url: "https://www.instagram.com/reels/DczNHL2JgNl/", supported: true},
 		{url: "https://instagram.com/example", supported: false},
 	}
 
