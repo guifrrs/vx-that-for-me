@@ -135,6 +135,41 @@ func TestReplaceLink(t *testing.T) {
 			},
 			expected: "First: https://fixupx.com/user1/status/123 Second: https://fixupx.com/user2/status/456",
 		},
+		{
+			name: "Instagram post link",
+			msg: &tbot.Message{
+				Text: "https://www.instagram.com/p/ABC123xyz/",
+			},
+			expected: "https://kkinstagram.com/p/ABC123xyz/",
+		},
+		{
+			name: "Instagram reel link with query parameters",
+			msg: &tbot.Message{
+				Text: "Check this https://instagram.com/reel/ABC123/?igsh=example",
+			},
+			expected: "Check this https://kkinstagram.com/reel/ABC123/?igsh=example",
+		},
+		{
+			name: "Instagram TV link over HTTP",
+			msg: &tbot.Message{
+				Text: "http://instagram.com/tv/ABC123",
+			},
+			expected: "https://kkinstagram.com/tv/ABC123",
+		},
+		{
+			name: "Instagram profile should not be converted",
+			msg: &tbot.Message{
+				Text: "https://instagram.com/example",
+			},
+			expected: "https://instagram.com/example",
+		},
+		{
+			name: "Mixed Twitter and Instagram links",
+			msg: &tbot.Message{
+				Text: "https://x.com/user/status/123 https://instagram.com/p/ABC123/",
+			},
+			expected: "https://fixupx.com/user/status/123 https://kkinstagram.com/p/ABC123/",
+		},
 	}
 
 	for _, tc := range testCases {
