@@ -39,7 +39,7 @@ func main() {
 	bot = tbot.New(token)
 	app.client = bot.Client()
 
-	bot.HandleMessage(`https?://(?:www\.)?(?:twitter|x)\.com/[^/]+/status/\d+`, MessageHandler)
+	bot.HandleMessage(supportedLinkPattern(), MessageHandler)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

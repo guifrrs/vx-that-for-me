@@ -1,6 +1,7 @@
 package main
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/yanzay/tbot/v2"
@@ -135,6 +136,48 @@ func TestReplaceLink(t *testing.T) {
 			},
 			expected: "First: https://fixupx.com/user1/status/123 Second: https://fixupx.com/user2/status/456",
 		},
+		{
+			name: "Instagram post link",
+			msg: &tbot.Message{
+				Text: "https://www.instagram.com/p/ABC123xyz/",
+			},
+			expected: "https://kkinstagram.com/p/ABC123xyz/",
+		},
+		{
+			name: "Instagram reel link with query parameters",
+			msg: &tbot.Message{
+				Text: "Check this https://instagram.com/reel/ABC123/?igsh=example",
+			},
+			expected: "Check this https://kkinstagram.com/reel/ABC123/?igsh=example",
+		},
+		{
+			name: "Instagram link followed by punctuation",
+			msg: &tbot.Message{
+				Text: "See https://instagram.com/p/ABC123.",
+			},
+			expected: "See https://kkinstagram.com/p/ABC123.",
+		},
+		{
+			name: "Instagram TV link over HTTP",
+			msg: &tbot.Message{
+				Text: "http://instagram.com/tv/ABC123",
+			},
+			expected: "https://kkinstagram.com/tv/ABC123",
+		},
+		{
+			name: "Instagram profile should not be converted",
+			msg: &tbot.Message{
+				Text: "https://instagram.com/example",
+			},
+			expected: "https://instagram.com/example",
+		},
+		{
+			name: "Mixed Twitter and Instagram links",
+			msg: &tbot.Message{
+				Text: "https://x.com/user/status/123 https://instagram.com/p/ABC123/",
+			},
+			expected: "https://fixupx.com/user/status/123 https://kkinstagram.com/p/ABC123/",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -142,6 +185,27 @@ func TestReplaceLink(t *testing.T) {
 			actual := replaceLink(tc.msg)
 			if actual != tc.expected {
 				t.Errorf("Expected %s, got %s", tc.expected, actual)
+			}
+		})
+	}
+}
+
+func TestSupportedLinkPattern(t *testing.T) {
+	pattern := regexp.MustCompile(supportedLinkPattern())
+	testCases := []struct {
+		url       string
+		supported bool
+	}{
+		{url: "https://x.com/user/status/123", supported: true},
+		{url: "https://instagram.com/p/ABC123", supported: true},
+		{url: "https://instagram.com/reel/ABC123", supported: true},
+		{url: "https://instagram.com/example", supported: false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.url, func(t *testing.T) {
+			if actual := pattern.MatchString(tc.url); actual != tc.supported {
+				t.Errorf("Expected supported=%t, got %t", tc.supported, actual)
 			}
 		})
 	}
