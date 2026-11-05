@@ -24,7 +24,7 @@ cd vx-that-for-me
 
 2. Create a `.env` file:
 ```bash
-cp .env.example .env
+echo 'TELEGRAM_TOKEN=' > .env
 ```
 
 3. Add your Telegram bot token to `.env`:
@@ -38,14 +38,9 @@ go build -o main .
 ./main
 ```
 
-## Docker
+## Deploy
 
-Build and run with Docker:
-
-```bash
-docker build -t vx-that-for-me .
-docker run -e TELEGRAM_TOKEN=your_token_here vx-that-for-me
-```
+See [docs/deploy.md](docs/deploy.md) to run it as a systemd service with `make deploy`.
 
 ## Usage
 
