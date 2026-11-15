@@ -18,6 +18,20 @@ if ! sudo test -f "$env_file"; then
   exit 0
 fi
 
+# Same check as main.go. An empty token would crash-loop the service.
+required="TELEGRAM_TOKEN"
+missing=$(sudo awk -F= -v required="$required" '
+  BEGIN { n = split(required, keys, " "); for (i = 1; i <= n; i++) need[keys[i]] = 1 }
+  $1 in need && $2 != "" { delete need[$1] }
+  END { for (k in need) printf "%s ", k }
+' "$env_file")
+if [[ -n $missing ]]; then
+  sudo systemctl disable --now "$app" 2>/dev/null || true
+  echo "$env_file has no value for: $missing" >&2
+  echo "fill it in with: sudoedit $env_file" >&2
+  exit 1
+fi
+
 sudo install -m 755 "build/$app" "/usr/local/bin/$app"
 sudo restorecon -F "/usr/local/bin/$app" 2>/dev/null || true
 sudo install -m 644 "deploy/$app.service" "/etc/systemd/system/$app.service"

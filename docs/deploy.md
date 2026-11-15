@@ -16,7 +16,7 @@ The script runs the tests, builds a static binary and installs it. It asks for s
 | Config | `/etc/vx-that-for-me/vx-that-for-me.env` (mode 600) |
 | Unit | `/etc/systemd/system/vx-that-for-me.service` |
 
-The first run only writes the config and stops. Put `TELEGRAM_TOKEN` in it, then run `make deploy` again to start the service.
+The first run only writes the config and stops. Put `TELEGRAM_TOKEN` in it with `sudoedit`, then run `make deploy` again to start the service. While `TELEGRAM_TOKEN` is empty, `make deploy` stops and disables the service and names the empty variable.
 
 Only one copy may poll with a token at a time. A second copy gets `409 Conflict` from Telegram.
 
