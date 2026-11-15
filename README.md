@@ -1,11 +1,11 @@
 # VX That For Me
 
-A Telegram bot that automatically converts Twitter/X and Instagram links for better embed support.
+A Telegram bot that automatically converts Twitter/X, Instagram, and Reddit links for better embed support.
 
 ## Features
 
-- Automatically detects Twitter/X status links and Instagram posts, reels, and videos in messages
-- Converts them to fixupx.com and kkinstagram.com links for better embed previews
+- Automatically detects Twitter/X status links, Instagram posts and reels, and Reddit posts in messages
+- Converts them to fixupx.com, zzinstagram.com, and vxreddit.com links for better embed previews
 - Deletes original messages to keep chats clean
 - Notifies users when a link is fixed
 
@@ -50,7 +50,7 @@ docker run -e TELEGRAM_TOKEN=your_token_here vx-that-for-me
 ## Usage
 
 1. Add the bot to a Telegram group chat
-2. Send a Twitter/X status link (e.g., `https://x.com/user/status/123456`) or an Instagram media link
+2. Send a Twitter/X status link (e.g., `https://x.com/user/status/123456`), an Instagram post or reel link, or a Reddit post link
 3. The bot will:
    - Send a friendly message mentioning you
    - Reply with the fixed link

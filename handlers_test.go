@@ -141,35 +141,42 @@ func TestReplaceLink(t *testing.T) {
 			msg: &tbot.Message{
 				Text: "https://www.instagram.com/p/ABC123xyz/",
 			},
-			expected: "https://kkinstagram.com/p/ABC123xyz/",
+			expected: "https://zzinstagram.com/p/ABC123xyz/",
 		},
 		{
 			name: "Instagram reel link with query parameters",
 			msg: &tbot.Message{
 				Text: "Check this https://instagram.com/reel/ABC123/?igsh=example",
 			},
-			expected: "Check this https://kkinstagram.com/reel/ABC123/?igsh=example",
+			expected: "Check this https://zzinstagram.com/reel/ABC123/?igsh=example",
 		},
 		{
 			name: "Instagram reels link",
 			msg: &tbot.Message{
 				Text: "https://www.instagram.com/reels/DczNHL2JgNl/",
 			},
-			expected: "https://kkinstagram.com/reels/DczNHL2JgNl/",
+			expected: "https://zzinstagram.com/reels/DczNHL2JgNl/",
 		},
 		{
 			name: "Instagram link followed by punctuation",
 			msg: &tbot.Message{
 				Text: "See https://instagram.com/p/ABC123.",
 			},
-			expected: "See https://kkinstagram.com/p/ABC123.",
+			expected: "See https://zzinstagram.com/p/ABC123.",
 		},
 		{
-			name: "Instagram TV link over HTTP",
+			name: "Instagram post link over HTTP",
 			msg: &tbot.Message{
-				Text: "http://instagram.com/tv/ABC123",
+				Text: "http://instagram.com/p/ABC123",
 			},
-			expected: "https://kkinstagram.com/tv/ABC123",
+			expected: "https://zzinstagram.com/p/ABC123",
+		},
+		{
+			name: "Instagram TV link should not be converted",
+			msg: &tbot.Message{
+				Text: "https://instagram.com/tv/ABC123",
+			},
+			expected: "https://instagram.com/tv/ABC123",
 		},
 		{
 			name: "Instagram profile should not be converted",
@@ -183,7 +190,70 @@ func TestReplaceLink(t *testing.T) {
 			msg: &tbot.Message{
 				Text: "https://x.com/user/status/123 https://instagram.com/p/ABC123/",
 			},
-			expected: "https://fixupx.com/user/status/123 https://kkinstagram.com/p/ABC123/",
+			expected: "https://fixupx.com/user/status/123 https://zzinstagram.com/p/ABC123/",
+		},
+		{
+			name: "Reddit post link",
+			msg: &tbot.Message{
+				Text: "https://www.reddit.com/r/golang/comments/18ujt6g/new_at_go_start_here/",
+			},
+			expected: "https://vxreddit.com/r/golang/comments/18ujt6g/new_at_go_start_here/",
+		},
+		{
+			name: "Old Reddit post link",
+			msg: &tbot.Message{
+				Text: "https://old.reddit.com/r/golang/comments/18ujt6g/",
+			},
+			expected: "https://vxreddit.com/r/golang/comments/18ujt6g/",
+		},
+		{
+			name: "Reddit comment link",
+			msg: &tbot.Message{
+				Text: "https://reddit.com/r/golang/comments/18ujt6g/new_at_go_start_here/kfm2b3x/",
+			},
+			expected: "https://vxreddit.com/r/golang/comments/18ujt6g/new_at_go_start_here/kfm2b3x/",
+		},
+		{
+			name: "Reddit user post link",
+			msg: &tbot.Message{
+				Text: "https://www.reddit.com/user/someone/comments/abc123/my_post/",
+			},
+			expected: "https://vxreddit.com/user/someone/comments/abc123/my_post/",
+		},
+		{
+			name: "Reddit app share link with query parameters",
+			msg: &tbot.Message{
+				Text: "olha isso https://www.reddit.com/r/golang/s/AbCdEf1234?utm_source=share",
+			},
+			expected: "olha isso https://vxreddit.com/r/golang/s/AbCdEf1234?utm_source=share",
+		},
+		{
+			name: "Reddit short link",
+			msg: &tbot.Message{
+				Text: "https://redd.it/18ujt6g",
+			},
+			expected: "https://vxreddit.com/18ujt6g",
+		},
+		{
+			name: "Reddit subreddit page should not be converted",
+			msg: &tbot.Message{
+				Text: "https://www.reddit.com/r/golang/",
+			},
+			expected: "https://www.reddit.com/r/golang/",
+		},
+		{
+			name: "Reddit media host should not be converted",
+			msg: &tbot.Message{
+				Text: "https://i.redd.it/abc123.jpg https://v.redd.it/abc123",
+			},
+			expected: "https://i.redd.it/abc123.jpg https://v.redd.it/abc123",
+		},
+		{
+			name: "Mixed Twitter, Instagram and Reddit links",
+			msg: &tbot.Message{
+				Text: "https://x.com/user/status/123 https://instagram.com/p/ABC123/ https://redd.it/18ujt6g",
+			},
+			expected: "https://fixupx.com/user/status/123 https://zzinstagram.com/p/ABC123/ https://vxreddit.com/18ujt6g",
 		},
 	}
 
@@ -208,6 +278,12 @@ func TestSupportedLinkPattern(t *testing.T) {
 		{url: "https://instagram.com/reel/ABC123", supported: true},
 		{url: "https://www.instagram.com/reels/DczNHL2JgNl/", supported: true},
 		{url: "https://instagram.com/example", supported: false},
+		{url: "https://instagram.com/tv/ABC123", supported: false},
+		{url: "https://www.reddit.com/r/golang/comments/18ujt6g/new_at_go_start_here/", supported: true},
+		{url: "https://www.reddit.com/r/golang/s/AbCdEf1234", supported: true},
+		{url: "https://redd.it/18ujt6g", supported: true},
+		{url: "https://www.reddit.com/r/golang/", supported: false},
+		{url: "https://i.redd.it/abc123.jpg", supported: false},
 	}
 
 	for _, tc := range testCases {
