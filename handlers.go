@@ -11,7 +11,10 @@ import (
 
 const (
 	twitterLinkPattern   = `https?://(?:www\.)?(?:twitter|x)\.com(/[^/]+/status/\d+)`
-	instagramLinkPattern = `https?://(?:www\.)?instagram\.com(/(?:p|reels?|tv)/[A-Za-z0-9_-]+)`
+	instagramLinkPattern = `https?://(?:www\.)?instagram\.com(/(?:p|reels?)/[A-Za-z0-9_-]+)`
+	// Full post links and the /r/<sub>/s/<id> links the Reddit app shares.
+	redditLinkPattern      = `https?://(?:(?:www|old|new|np|m)\.)?reddit\.com(/(?:(?:(?:r|u|user)/[^/\s]+/)?comments/[a-z0-9]+|(?:r|u|user)/[^/\s]+/s/[A-Za-z0-9]+))`
+	redditShortLinkPattern = `https?://redd\.it(/[a-z0-9]+)`
 )
 
 type linkRule struct {
@@ -30,7 +33,9 @@ func newLinkRule(pattern, domain string) linkRule {
 
 var linkRules = []linkRule{
 	newLinkRule(twitterLinkPattern, "fixupx.com"),
-	newLinkRule(instagramLinkPattern, "kkinstagram.com"),
+	newLinkRule(instagramLinkPattern, "zzinstagram.com"),
+	newLinkRule(redditLinkPattern, "vxreddit.com"),
+	newLinkRule(redditShortLinkPattern, "vxreddit.com"),
 }
 
 var usernameRegex = regexp.MustCompile(`[^a-zA-Z0-9_\-@. ]`)
