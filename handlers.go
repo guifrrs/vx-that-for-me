@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/yanzay/tbot/v2"
 )
@@ -38,6 +39,10 @@ var linkRules = []linkRule{
 	newLinkRule(redditShortLinkPattern, "vxreddit.com"),
 }
 
+// Telegram keeps unconfirmed updates for up to 24h, so after the bot was offline
+// it receives everything posted meanwhile. Links older than this are left alone.
+const maxMessageAge = 2 * time.Minute
+
 var usernameRegex = regexp.MustCompile(`[^a-zA-Z0-9_\-@. ]`)
 
 func supportedLinkPattern() string {
@@ -62,6 +67,10 @@ func getUsername(msg *tbot.Message) string {
 	return msg.From.FirstName
 }
 
+func isStale(msg *tbot.Message, now time.Time) bool {
+	return now.Sub(time.Unix(msg.Date, 0)) > maxMessageAge
+}
+
 func replaceLink(msg *tbot.Message) string {
 	result := msg.Text
 	for _, rule := range linkRules {
@@ -74,6 +83,12 @@ func MessageHandler(msg *tbot.Message) {
 	username := getUsername(msg)
 	safeUsername := sanitizeForLog(username)
 	safeText := sanitizeForLog(msg.Text)
+
+	if isStale(msg, time.Now()) {
+		log.Printf("Skipping stale message from @%s sent at %s", safeUsername, time.Unix(msg.Date, 0).Format(time.RFC3339))
+		return
+	}
+
 	log.Printf("Received message from @%s: %s", safeUsername, safeText)
 
 	originalSenderMsg := fmt.Sprintf("Hey @%s, I fixed that for you :3", username)

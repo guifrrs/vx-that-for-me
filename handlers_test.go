@@ -3,6 +3,7 @@ package main
 import (
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/yanzay/tbot/v2"
 )
@@ -333,6 +334,29 @@ func TestSanitizeForLog(t *testing.T) {
 			actual := sanitizeForLog(tc.input)
 			if actual != tc.expected {
 				t.Errorf("Expected %q, got %q", tc.expected, actual)
+			}
+		})
+	}
+}
+
+func TestIsStale(t *testing.T) {
+	now := time.Unix(1_700_000_000, 0)
+	testCases := []struct {
+		name     string
+		sentAt   time.Time
+		expected bool
+	}{
+		{"just sent", now, false},
+		{"one minute old", now.Add(-time.Minute), false},
+		{"exactly at the limit", now.Add(-2 * time.Minute), false},
+		{"posted while the bot was offline", now.Add(-3 * time.Hour), true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			msg := &tbot.Message{Date: tc.sentAt.Unix()}
+			if got := isStale(msg, now); got != tc.expected {
+				t.Errorf("isStale() = %v, want %v", got, tc.expected)
 			}
 		})
 	}
